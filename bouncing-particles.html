@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>bouncing-particles</title>
+
+  <style>
+    html, body {
+      overflow: hidden;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- 仅最新的浏览器可用 -->
+  <script src="https://cdn.bootcss.com/pixi.js/4.7.0/pixi.js"></script>
+  <script>
+    // 辅助函数
+    const random = (n) => Math.random() * n
+    const binRandom = (n) => Math.random() < n
+  </script>
+  <script>
+    /* https://codepen.io/Godje/post/bouncing-particles-tutorial： pixi version */
+    const w = window.innerWidth
+    const h = window.innerHeight
+
+    const app = new PIXI.Application({
+      // 1. 添加天蓝色背景色
+      backgroundColor:  0x03a9f4,
+      // transparent: true,
+      width: w,
+      height: h,
+      antialias: true
+    })
+    app.view.id = "app"
+
+    document.body.appendChild(app.view)
+
+
+    const dots = new Array(500).fill().map(v => ({
+      // 位置限制在canvas内部
+      p: { x: random(w), y: random(h) }, 
+      // 运动速度
+      v: { 
+        x: binRandom(0.5) ? random(1) : random(-1),
+        y: binRandom(0.5) ? random(1) : random(-1)
+      },
+      // 大小
+      s: random(1) + 2,
+      // 运动速度
+      o: random(1) + 0.3
+    }))
+
+    const dotsContainer = new PIXI.Container()
+    dots.forEach(dot => {
+      const dotGraphic = new PIXI.Graphics()
+      // @Mark: 如何添加一个圆？
+      dotGraphic.x = dot.p.x
+      dotGraphic.y = dot.p.y
+      dotGraphic.beginFill(0xffffff, dot.o)
+      dotGraphic.drawCircle(0, 0, dot.s)
+      dotGraphic.endFill()
+      dotsContainer.addChild(dotGraphic)
+    })
+    app.stage.addChild(dotsContainer)
+    console.log(dotsContainer.children)
+    // 设置每一帧?
+    app.ticker.add(() => {
+      dotsContainer.children.forEach((g, i) => {
+        const p = dots[i]
+        g.x += p.v.x
+        g.y += p.v.y
+
+        if (g.x > w || g.x < 0) p.v.x *= -1
+        if (g.y > h || g.y < 0) p.v.y *= -1 
+      })
+    })
+  </script>
+</body>
+</html>
